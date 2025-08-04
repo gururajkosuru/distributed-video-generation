@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mochi-config
+  namespace: mochi-video-gen
+  labels:
+    app.kubernetes.io/name: mochi-video-gen
+data:
+  # Ray Configuration
+  RAY_ADDRESS: "ray://ray-head-service:10001"
+  RAY_DASHBOARD_HOST: "0.0.0.0"
+  RAY_TEMP_DIR: "/raytmp"
+  RAY_OBJECT_STORE_MEMORY: "8000000000"
+  
+  # Redis Configuration  
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  
+  # GPU Configuration
+  NVIDIA_VISIBLE_DEVICES: "all"
+  NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+  
+  # Application Configuration
+  VIDEO_OUTPUT_PATH: "/data/videos"
+  MODEL_CACHE_PATH: "/data/models"
+  GENERAL_CACHE_PATH: "/data/cache"
+  
+  # Scaling Configuration
+  RAY_NUM_CPUS: "8"
+  RAY_NUM_GPUS: "2"
+  RAY_MIN_WORKERS: "2"
+  RAY_MAX_WORKERS: "10"
+  
+  # Model Configuration
+  MOCHI_MODEL_NAME: "genmo/mochi-1-preview"
+  VIDEO_FRAMES: "84"
+  VIDEO_FPS: "30"

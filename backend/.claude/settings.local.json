@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export KUBECONFIG=/home/ubuntu/guru-kubeconfig.yml)",
+      "Bash(kubectl patch:*)",
+      "Bash(kubectl get pods:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(kubectl delete pods:*)",
+      "Bash(kubectl rollout restart:*)"
+    ],
+    "deny": []
+  }
+}

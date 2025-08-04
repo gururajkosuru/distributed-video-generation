@@ -1,0 +1,27 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mochi-nvme-storage
+  labels:
+    app.kubernetes.io/name: mochi-video-gen
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+parameters:
+  type: nvme
+  fsType: ext4
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mochi-fast-storage
+  labels:
+    app.kubernetes.io/name: mochi-video-gen
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+parameters:
+  nodePath: /mnt/nvme-storage
+  hostDir: /mnt/nvme-storage

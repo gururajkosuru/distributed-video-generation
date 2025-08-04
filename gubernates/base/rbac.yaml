@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mochi-service-account
+  namespace: mochi-video-gen
+  labels:
+    app.kubernetes.io/name: mochi-video-gen
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: mochi-cluster-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["nodes", "pods"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mochi-cluster-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mochi-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: mochi-service-account
+  namespace: mochi-video-gen
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mochi-namespace-role
+  namespace: mochi-video-gen
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log", "services", "endpoints", "persistentvolumeclaims", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mochi-namespace-role-binding
+  namespace: mochi-video-gen
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mochi-namespace-role
+subjects:
+- kind: ServiceAccount
+  name: mochi-service-account
+  namespace: mochi-video-gen

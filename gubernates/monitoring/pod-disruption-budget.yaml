@@ -1,0 +1,44 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-pdb
+  namespace: mochi-video-gen
+  labels:
+    app.kubernetes.io/name: backend-pdb
+    app.kubernetes.io/part-of: mochi-video-gen
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backend
+      app.kubernetes.io/instance: mochi-backend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ray-worker-pdb
+  namespace: mochi-video-gen
+  labels:
+    app.kubernetes.io/name: ray-worker-pdb
+    app.kubernetes.io/part-of: mochi-video-gen
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ray-worker
+      app.kubernetes.io/instance: mochi-ray-worker
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: mochi-video-gen
+  labels:
+    app.kubernetes.io/name: frontend-pdb
+    app.kubernetes.io/part-of: mochi-video-gen
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: frontend
+      app.kubernetes.io/instance: mochi-frontend
