@@ -53,6 +53,7 @@ spec:
         volumeMounts:
         - name: ray-tmp
           mountPath: /raytmp
+          subPath: ray-tmp
         - name: data-volume
           mountPath: /data
         - name: cache-volume
@@ -71,7 +72,6 @@ spec:
             --address=ray-head-service:6380 \
             --num-cpus=8 \
             --num-gpus=2 \
-            --temp-dir=/raytmp \
             --object-store-memory=30000000000 \
             --block
         livenessProbe:
@@ -102,8 +102,8 @@ spec:
               - stop
       volumes:
       - name: ray-tmp
-        emptyDir:
-          sizeLimit: 20Gi
+        persistentVolumeClaim:
+          claimName: videos-pvc
       - name: data-volume
         persistentVolumeClaim:
           claimName: videos-pvc

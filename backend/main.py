@@ -64,6 +64,7 @@ except Exception as e:
 class GenerateRequest(BaseModel):
     prompt: str
     account_id: str
+    num_frames: int = 85  # Default to 85 frames, max 1000
 
 class JobStatus(str):
     PENDING = "PENDING"
@@ -72,7 +73,7 @@ class JobStatus(str):
     FAILED = "FAILED"
 
 @ray.remote(num_gpus=1)
-def run_generation_ray(job_id: str, prompt: str) -> str:
+def run_generation_ray(job_id: str, prompt: str, num_frames: int = 85) -> str:
     import redis
     import json
     from diffusers import MochiPipeline
@@ -211,7 +212,7 @@ def run_generation_ray(job_id: str, prompt: str) -> str:
         log_and_print("🎬 RAY WORKER starting video generation...")
         gen_start_time = time.time()
         with torch.autocast("cuda", torch.bfloat16, cache_enabled=False):
-            result = pipe(prompt, num_frames=84)
+            result = pipe(prompt, num_frames=min(num_frames, 1000))  # Cap at 1000 frames
             frames = result.frames[0]
         gen_time = time.time() - gen_start_time
         log_and_print(f"✅ RAY WORKER video generation completed in {gen_time:.2f}s")
@@ -286,7 +287,7 @@ async def generate(req: GenerateRequest):
         logger.info(f"🚀 BACKEND submitting Ray task for job {job_id}")
         logger.info(f"📊 BACKEND current Ray cluster resources: {ray.cluster_resources()}")
         
-        future = run_generation_ray.remote(job_id, req.prompt)
+        future = run_generation_ray.remote(job_id, req.prompt, req.num_frames)
         logger.info(f"✅ BACKEND Ray task submitted successfully for job {job_id}")
         logger.info(f"🔗 BACKEND Ray task reference: {future}")
         
