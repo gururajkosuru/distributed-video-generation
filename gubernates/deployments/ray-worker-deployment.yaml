@@ -65,6 +65,8 @@ spec:
         - /bin/bash
         - -c
         - |
+          echo "🚀 Starting Ray worker with model preloading..."
+          python /app/ray_worker_warmup.py &
           ray start \
             --address=ray-head-service:6380 \
             --num-cpus=8 \
