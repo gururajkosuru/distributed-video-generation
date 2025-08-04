@@ -13,7 +13,7 @@ data:
   RAY_OBJECT_STORE_MEMORY: "8000000000"
   
   # Redis Configuration  
-  REDIS_HOST: "redis"
+  REDIS_HOST: "redis-service"
   REDIS_PORT: "6379"
   REDIS_DB: "0"
   
