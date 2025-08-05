@@ -95,6 +95,12 @@ debug_*.py
 .claude/projects/
 .claude/todos/
 
+# SSH keys and sensitive files
+.ssh/
+*.pem
+*.key
+*.priv
+
 # Temporary files
 *.tmp
 *.temp
