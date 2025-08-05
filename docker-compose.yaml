@@ -1,0 +1,58 @@
+
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  ray:
+    build: ./ray
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    command: >
+       bash -c "ray start --head --num-cpus=4 --num-gpus=1 --port=6380 --ray-client-server-port=10001 --dashboard-host=0.0.0.0 --temp-dir=/raytmp --object-store-memory=8000000000 && tail -f /dev/null"
+    ports:
+      - "6380:6380"
+      - "8265:8265"  # Ray dashboard
+      - "10001:10001"  # Add this
+    shm_size: "10gb"
+    volumes:
+      - /mnt/nvme-storage/ray-tmp:/raytmp
+      - /mnt/nvme-storage/cache:/cache
+      - /mnt/nvme-storage/models:/models
+      - /mnt/nvme-storage/data:/data
+  backend:
+    build: ./backend
+    depends_on:
+      - ray
+    environment:
+      - RAY_ADDRESS=ray://ray:10001
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - REDIS_HOST=redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - /mnt/nvme-storage/data:/data
+      - /mnt/nvme-storage/models:/models
+      - /mnt/nvme-storage/cache:/cache
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+volumes:
+  ray_tmp:
+

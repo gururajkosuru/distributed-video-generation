@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mochi-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mochi-app
+  template:
+    metadata:
+      labels:
+        app: mochi-app
+    spec:
+      containers:
+        - name: mochi
+          image: glususer/mochi-1-preview:latest
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: video-volume
+              mountPath: /data/videos
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+      volumes:
+        - name: video-volume
+          hostPath:
+            path: /data/videos
+            type: DirectoryOrCreate
+
