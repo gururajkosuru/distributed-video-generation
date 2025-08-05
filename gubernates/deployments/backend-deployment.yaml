@@ -73,21 +73,19 @@ spec:
             cpu: 2
             memory: 4Gi
         volumeMounts:
-        - name: data-volume
-          mountPath: /data
-        - name: models-volume
-          mountPath: /models
-        - name: cache-volume
-          mountPath: /cache
+        - name: storage-volume
+          mountPath: /storage
         command:
-        - uvicorn
-        - main:app
-        - --host
-        - "0.0.0.0"
-        - --port
-        - "8000"
-        - --workers
-        - "1"
+        - /bin/bash
+        - -c
+        - |
+          # Create directory structure and symlinks
+          mkdir -p /storage/data /storage/cache /storage/models
+          ln -sf /storage/data /data
+          ln -sf /storage/cache /cache
+          ln -sf /storage/models /models
+          # Start the backend
+          uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1
         livenessProbe:
           httpGet:
             path: /docs  # FastAPI docs endpoint
@@ -113,15 +111,9 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 12  # 60 seconds total startup time
       volumes:
-      - name: data-volume
+      - name: storage-volume
         persistentVolumeClaim:
           claimName: videos-pvc
-      - name: models-volume
-        persistentVolumeClaim:
-          claimName: models-pvc
-      - name: cache-volume
-        persistentVolumeClaim:
-          claimName: cache-pvc
       nodeSelector:
         kubernetes.io/os: linux
       affinity:

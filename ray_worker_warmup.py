@@ -40,8 +40,11 @@ def preload_mochi_model():
     start_time = time.time()
     
     try:
-        # Load the model
-        _MOCHI_PIPELINE_CACHE = MochiPipeline.from_pretrained("genmo/mochi-1-preview").to("cuda")
+        # Load the model with float16 precision to reduce memory usage
+        _MOCHI_PIPELINE_CACHE = MochiPipeline.from_pretrained(
+            "genmo/mochi-1-preview", 
+            torch_dtype=torch.float16
+        ).to("cuda")
         _MOCHI_PIPELINE_CACHE.enable_model_cpu_offload()
         _MOCHI_PIPELINE_CACHE.enable_vae_tiling()
         

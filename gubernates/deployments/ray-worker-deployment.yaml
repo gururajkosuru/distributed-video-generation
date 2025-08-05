@@ -23,6 +23,9 @@ spec:
       containers:
       - name: ray-worker
         image: glususer/mochi-ray:latest
+        imagePullPolicy: Always
+        securityContext:
+          runAsUser: 0  # Run as root to create temp directories
         env:
         - name: RAY_DISABLE_DOCKER_CPU_WARNING
           value: "1"
@@ -51,15 +54,8 @@ spec:
             memory: 64Gi
             nvidia.com/gpu: 2  # Limit to 2 GPUs per replica
         volumeMounts:
-        - name: ray-tmp
-          mountPath: /raytmp
-          subPath: ray-tmp
-        - name: data-volume
-          mountPath: /data
-        - name: cache-volume
-          mountPath: /cache
-        - name: models-volume
-          mountPath: /models
+        - name: storage-volume
+          mountPath: /storage
         - name: shm
           mountPath: /dev/shm
         command:
@@ -67,6 +63,12 @@ spec:
         - -c
         - |
           echo "🚀 Starting Ray worker with model preloading..."
+          # Create directory structure in shared storage
+          mkdir -p /storage/ray-tmp /storage/data /storage/cache /storage/models
+          # Create symlinks for compatibility
+          ln -sf /storage/data /data
+          ln -sf /storage/cache /cache
+          ln -sf /storage/models /models
           python /app/ray_worker_warmup.py &
           ray start \
             --address=ray-head-service:6380 \
@@ -101,18 +103,9 @@ spec:
               - ray
               - stop
       volumes:
-      - name: ray-tmp
+      - name: storage-volume
         persistentVolumeClaim:
           claimName: videos-pvc
-      - name: data-volume
-        persistentVolumeClaim:
-          claimName: videos-pvc
-      - name: cache-volume
-        persistentVolumeClaim:
-          claimName: cache-pvc
-      - name: models-volume
-        persistentVolumeClaim:
-          claimName: models-pvc
       - name: shm
         emptyDir:
           medium: Memory

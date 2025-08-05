@@ -72,7 +72,7 @@ class JobStatus(str):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
 
-@ray.remote(num_gpus=1)
+@ray.remote(num_gpus=2)
 def run_generation_ray(job_id: str, prompt: str, num_frames: int = 85) -> str:
     import redis
     import json
@@ -203,7 +203,8 @@ def run_generation_ray(job_id: str, prompt: str, num_frames: int = 85) -> str:
                 log_and_print(f"🔥 RAY WORKER CUDA device name: {torch.cuda.get_device_name()}")
                 log_and_print(f"🔥 RAY WORKER CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}GB")
                 
-            pipe = MochiPipeline.from_pretrained("genmo/mochi-1-preview").to("cuda")
+            # Use float16 for cold loading too
+            pipe = MochiPipeline.from_pretrained("genmo/mochi-1-preview", torch_dtype=torch.float16).to("cuda")
             pipe.enable_model_cpu_offload()
             pipe.enable_vae_tiling()
             load_time = time.time() - start_time

@@ -23,6 +23,7 @@ spec:
       containers:
       - name: ray-head
         image: glususer/mochi-ray:latest
+        imagePullPolicy: Always
         ports:
         - name: ray-client
           containerPort: 10001

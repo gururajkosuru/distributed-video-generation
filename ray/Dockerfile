@@ -13,7 +13,7 @@ RUN pip install --upgrade pip && \
 # Set working directory
 WORKDIR /app
 
-# Copy warmup script for model preloading
+# Copy warmup script for model preloading (from root directory)
 COPY ray_worker_warmup.py /app/ray_worker_warmup.py
 
 # Copy the backend files so Ray workers can access main.py
