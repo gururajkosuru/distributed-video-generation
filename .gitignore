@@ -85,6 +85,16 @@ models/
 test_*.py
 debug_*.py
 
+# Large files and cache directories (GitHub size limits)
+.npm/
+.local/share/claude/versions/
+.docker/
+.kube/cache/
+.claude/statsig/
+.claude/shell-snapshots/
+.claude/projects/
+.claude/todos/
+
 # Temporary files
 *.tmp
 *.temp
